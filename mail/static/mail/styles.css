@@ -1,0 +1,24 @@
+textarea {
+    min-height: 400px;
+}
+
+.mail-row{
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #636363;
+    padding: 0.5rem;
+    margin-top: 1px;
+}
+
+.mail-row-left {
+    display: flex;
+    gap: 10px;
+  }
+  
+.mail-row-right {
+    align-self: flex-end;
+  }
+
+.visited{
+    background-color: #a3a3a3;
+}
