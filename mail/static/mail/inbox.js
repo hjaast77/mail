@@ -60,7 +60,7 @@ function load_mailbox(mailbox) {
   
   if (mailbox === 'inbox') {
     //fetch mails for mailbox
-    fetch('/emails/sent')
+    fetch('/emails/inbox')
     .then(response => response.json())
     .then(emails => {
 
@@ -71,6 +71,7 @@ function load_mailbox(mailbox) {
       emails.forEach(singlemail => {
         const mailRow = document.createElement('div');
         mailRow.classList.add('mail-row');
+        
 
         if (!singlemail.read){
           mailRow.classList.add('visited');
@@ -95,11 +96,12 @@ function load_mailbox(mailbox) {
         mailRow.appendChild(mailRowL);
         mailRow.appendChild(mailRowR);
         mailRowContainer.appendChild(mailRow);
+        mailRow.addEventListener('click', () => load_mail(singlemail.id));
         
       });
       console.log(emails);
-  })
-}
+    })
+  }
 
   else if (mailbox === 'sent') {
         //fetch mails for mailbox
@@ -157,4 +159,45 @@ function load_mailbox(mailbox) {
       // ... do something else with emails ...
   });
 }
+}
+
+function load_mail(id){
+  const mailRowContainer = document.querySelector('#emails-view');
+  //hide all mails
+  const mailRows = document.querySelectorAll('.mail-row');
+  mailRows.forEach(row =>{
+    row.style.display = 'none';
+  })
+  //fetch selected mail
+  fetch(`/emails/${id}`)
+  .then(response => response.json())
+  .then(email => {
+    // Print email
+
+    const heading = document.createElement('div');
+    heading.classList.add('mail-heading');
+    const left = document.createElement('div');
+    left.classList.add('heading-left');
+    const right = document.createElement('div');
+    right.classList.add('heading-right');
+
+    const from = document.createElement('div');
+    from.innerHTML = 'From:';
+    const sender = document.createElement('div');
+    sender.innerHTML = email.sender;
+    left.appendChild(from);
+    right.appendChild(sender);
+    heading.appendChild(left);
+    heading.appendChild(right);
+    mailRowContainer.appendChild(heading);
+
+
+
+ 
+    console.log(email);
+
+    // ... do something else with email ...
+});
+  console.log(id)
+
 }

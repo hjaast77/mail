@@ -20,5 +20,14 @@ textarea {
   }
 
 .visited{
-    background-color: #a3a3a3;
+    background-color: #d4d4d4;
+}
+
+.heading-left{
+  font-weight: bold;
+}
+
+.mail-heading{
+  display: flex;
+  gap: 10px;
 }
