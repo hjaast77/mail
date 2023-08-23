@@ -42,7 +42,9 @@ function compose_email() {
         // Print result
         console.log(result);
     });
+    setTimeout(() => {
       load_mailbox('sent');
+  }, 500);
   }; 
   return false;
 }
@@ -52,6 +54,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-detail').style.display = 'none';
   const mailRowContainer = document.querySelector('#emails-view');
 
   // Show the mailbox name
@@ -162,37 +165,69 @@ function load_mailbox(mailbox) {
 }
 
 function load_mail(id){
-  const mailRowContainer = document.querySelector('#emails-view');
+  const mailContainer = document.querySelector('#email-detail');
+  //delete previous mails
+  while (mailContainer.firstChild) {
+    mailContainer.removeChild(mailContainer.firstChild);
+  }
+
+  document.querySelector('#emails-view').style.display = 'none';
+  mailContainer.style.display = 'block';
+  
+  
   //hide all mails
-  const mailRows = document.querySelectorAll('.mail-row');
-  mailRows.forEach(row =>{
-    row.style.display = 'none';
-  })
+  
   //fetch selected mail
   fetch(`/emails/${id}`)
   .then(response => response.json())
   .then(email => {
-    // Print email
+    
+    //print headings
 
-    const heading = document.createElement('div');
-    heading.classList.add('mail-heading');
-    const left = document.createElement('div');
-    left.classList.add('heading-left');
-    const right = document.createElement('div');
-    right.classList.add('heading-right');
+    const fieldOrder = ['sender', 'recipients', 'subject', 'timestamp'];
 
-    const from = document.createElement('div');
-    from.innerHTML = 'From:';
-    const sender = document.createElement('div');
-    sender.innerHTML = email.sender;
-    left.appendChild(from);
-    right.appendChild(sender);
-    heading.appendChild(left);
-    heading.appendChild(right);
-    mailRowContainer.appendChild(heading);
+    for (const field of fieldOrder) {
+      const heading = document.createElement('div');
+      heading.classList.add('mail-heading');
+      const label = document.createElement('div');
+      label.classList.add('bold-text')
+      label.textContent = `${getFieldLabel(field)}: `;
+      const value = document.createElement('span');
+      value.textContent = email[field];
 
-
-
+      heading.appendChild(label);
+      heading.appendChild(value);
+      mailContainer.appendChild(heading);
+}
+      function getFieldLabel(field) {
+        switch (field) {
+          case 'sender':
+            return 'From';
+          case 'recipients':
+            return 'To';
+          case 'subject':
+            return 'Subject';
+          case 'timestamp':
+            return 'Timestamp';
+          default:
+            return field;
+        }
+}
+const reply = document.createElement('button');
+reply.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+reply.textContent = 'Reply';
+mailContainer.appendChild(reply);
+const archButton = document.createElement('button');
+archButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+if (email.archived){
+  archButton.textContent = 'Unarchive'
+  mailContainer.appendChild(archButton);
+} else {
+  archButton.textContent = 'Archive'
+  mailContainer.appendChild(archButton);
+}
+const line = document.createElement('hr')
+mailContainer.appendChild(line);
  
     console.log(email);
 
@@ -200,4 +235,4 @@ function load_mail(id){
 });
   console.log(id)
 
-}
+} 
