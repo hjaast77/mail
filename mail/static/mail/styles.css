@@ -32,3 +32,8 @@ textarea {
   gap: 10px;
   justify-content: flex-start;
 }
+
+.but-line{
+  display: flex;
+  gap: 4px;
+}

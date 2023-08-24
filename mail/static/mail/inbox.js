@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
-
-  // By default, load the inbox
+    // By default, load the inbox
   load_mailbox('inbox');
 });
 
@@ -165,13 +164,22 @@ function load_mailbox(mailbox) {
 }
 
 function load_mail(id){
+
+  fetch(`/emails/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+    })
+  })
+
   const mailContainer = document.querySelector('#email-detail');
   //delete previous mails
-  while (mailContainer.firstChild) {
+   while (mailContainer.firstChild) {
     mailContainer.removeChild(mailContainer.firstChild);
   }
-
+ 
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
   mailContainer.style.display = 'block';
   
   
@@ -213,21 +221,49 @@ function load_mail(id){
             return field;
         }
 }
+const buttonLine = document.createElement('div');
+buttonLine.classList.add('but-line');
 const reply = document.createElement('button');
 reply.classList.add('btn', 'btn-sm', 'btn-outline-primary');
 reply.textContent = 'Reply';
-mailContainer.appendChild(reply);
+
 const archButton = document.createElement('button');
 archButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
 if (email.archived){
   archButton.textContent = 'Unarchive'
-  mailContainer.appendChild(archButton);
-} else {
+ } else {
   archButton.textContent = 'Archive'
-  mailContainer.appendChild(archButton);
 }
+
+
+archButton.addEventListener('click', function() {
+  if (email.archived){
+    fetch(`/emails/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: false
+      })
+    })
+  }else{
+    fetch(`/emails/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: true
+      })
+    })
+  }
+});
+
+
+buttonLine.appendChild(reply);
+buttonLine.appendChild(archButton);
+mailContainer.appendChild(buttonLine);
 const line = document.createElement('hr')
 mailContainer.appendChild(line);
+
+const body = document.createElement('div');
+body.innerHTML = email.body;
+mailContainer.appendChild(body);
  
     console.log(email);
 
