@@ -9,16 +9,25 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
-function compose_email() {
+function compose_email(mail = null) {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#email-detail').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  console.log(mail);
 
-  // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  if (mail){
+    // Set values only if mail is provided
+    document.querySelector('#compose-recipients').value = mail.sender || '';
+    document.querySelector('#compose-subject').value = mail.subject ? (mail.subject.startsWith('Re:') ? mail.subject : `Re: ${mail.subject}`) : '';
+    document.querySelector('#compose-body').value = mail.timestamp ? `On ${mail.timestamp}, ${mail.sender} wrote:\n${mail.body}` : '';
+  } else {
+    // Clear out composition fields
+    document.querySelector('#compose-recipients').value = '';
+    document.querySelector('#compose-subject').value = '';
+    document.querySelector('#compose-body').value = '';
+  }
 
   // Passing mail fileds
 
@@ -146,20 +155,51 @@ function load_mailbox(mailbox) {
       })
   }
   else {
-          //fetch mails for mailbox
+    //fetch mails for mailbox
+
+    //fetch mails for mailbox
     fetch('/emails/archive')
     .then(response => response.json())
     .then(emails => {
-      // Print emails
-      emails.array.forEach(singlemail => {
-        const mail = document.createElement('div');
-        mail.innerHTML = singlemail.sender;
-        document.querySelector('#emails-view').append(mail);
+
+       //create structure for displaying mails
+
+        //loop emails array
+
+      emails.forEach(singlemail => {
+        const mailRow = document.createElement('div');
+        mailRow.classList.add('mail-row');
+        
+
+        if (!singlemail.read){
+          mailRow.classList.add('visited');
+        }
+
+        const mailRowL = document.createElement('div');
+        mailRowL.classList.add('mail-row-left');
+
+        const mailRowR = document.createElement('div');
+        mailRowR.classList.add('mail-row-right');
+
+        const sender = document.createElement('div');
+        sender.innerHTML = `From: ${singlemail.sender}`;
+        const subject = document.createElement('div');
+        subject.innerHTML = singlemail.subject;
+        const timestamp = document.createElement('div');
+        timestamp.innerHTML = singlemail.timestamp;
+        mailRowL.appendChild(sender);
+        mailRowL.appendChild(subject);
+        mailRowR.appendChild(timestamp);
+
+        mailRow.appendChild(mailRowL);
+        mailRow.appendChild(mailRowR);
+        mailRowContainer.appendChild(mailRow);
+        mailRow.addEventListener('click', () => load_mail(singlemail.id));
+        
       });
       console.log(emails);
-
-      // ... do something else with emails ...
-  });
+    })
+    
 }
 }
 
@@ -235,6 +275,8 @@ if (email.archived){
   archButton.textContent = 'Archive'
 }
 
+reply.addEventListener('click', () => compose_email(email));
+  
 
 archButton.addEventListener('click', function() {
   if (email.archived){
